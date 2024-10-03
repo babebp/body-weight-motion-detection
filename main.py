@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import mediapipe as mp
 import pandas as pd
-
+import time
 
 @st.cache_resource
 def load_model():
@@ -60,9 +60,11 @@ def main():
         exercise = left.selectbox("Exercise", [" - ".join(map(str, task)) + " " + "Reps" for task in tasks], index=None, placeholder="Select Exercise")
         start_button = right.button("Start")
 
-        target_reps = 2
+        if exercise:
+            target_reps = int(exercise.split(" ")[-2])
 
     if exercise and target_reps and start_button:
+        start_time = time.time()
         target_reps = int(target_reps)
         video_placeholder = st.empty()
 
@@ -103,13 +105,15 @@ def main():
                     counting = True
 
                 # Display the angle
-                cv2.putText(frame, f'Angle: {int(angle)}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.putText(frame, f'Angle: {int(angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                 # Draw progress bar
                 draw_progress_bar(frame, angle_percentage)
 
                 # Display curl count
-                cv2.putText(frame, f'Curls: {curl_rep}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.putText(frame, f'Curls: {curl_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+                cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                 if curl_rep >= target_reps:
                     video_placeholder.empty()
