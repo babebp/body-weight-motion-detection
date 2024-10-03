@@ -5,6 +5,7 @@ import requests
 import os
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 
 # Telegram bot token and chat_id
@@ -22,7 +23,7 @@ def send_telegram_message(message):
     if response.status_code != 200:
         raise ValueError(f"Failed to send message: {response.text}")
 
-# Define the DAG and schedule
+# Default arguments for both DAGs
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -32,14 +33,15 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+# DAG for sending morning message at 9:00 AM
 with DAG(
-    'telegram_message',
+    'telegram_morning_message',
     default_args=default_args,
-    description='Send message to Telegram at 9 AM and 8 PM daily',
-    schedule_interval='0 9,20 * * *',  # Every day at 9:00 AM and 8:00 PM
+    description='Send morning message to Telegram at 9:00 AM',
+    schedule_interval='0 9 * * *',  # Every day at 9:00 AM
     start_date=datetime(2023, 1, 1),
     catchup=False,
-) as dag:
+) as morning_dag:
 
     send_morning_message = PythonOperator(
         task_id='send_morning_message',
@@ -47,10 +49,18 @@ with DAG(
         op_args=["Good morning! This is your 9:00 AM message."],
     )
 
+# DAG for sending evening message at 8:00 PM
+with DAG(
+    'telegram_evening_message',
+    default_args=default_args,
+    description='Send evening message to Telegram at 8:00 PM',
+    schedule_interval='0 20 * * *',  # Every day at 8:00 PM
+    start_date=datetime(2023, 1, 1),
+    catchup=False,
+) as evening_dag:
+
     send_evening_message = PythonOperator(
         task_id='send_evening_message',
         python_callable=send_telegram_message,
         op_args=["Good evening! This is your 8:00 PM message."],
     )
-
-    send_morning_message >> send_evening_message
