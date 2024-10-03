@@ -39,16 +39,39 @@ def main():
     pose = mp_pose.Pose(static_image_mode=False, model_complexity=1, enable_segmentation=False, smooth_landmarks=True)
 
     st.title("Exercise Tracking")
+
+
+    with st.container(height=280):
+        st.markdown(
+            """
+            ### Note 💡
+            ```
+            1. 
+
+            2.
+
+            3.
+
+            4.
+            ```
+
+            """
+        )
+    
     
     col1, col2 = st.columns(2)
     
-    with col1.container(height=400):
+    with col1.container(height=255):
         time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], index=None ,placeholder="Select Time Period")
-        chart_data = pd.DataFrame(np.random.randn(20, 3), columns=["a", "b", "c"])
-        st.bar_chart(chart_data)
+        chart_data = pd.DataFrame({
+            "a": [1, 2, 3],
+            "b": [1, 2, 3],
+            "c": [1, 2, 10]
+        }, columns=["a", "b", "c"])
+        st.bar_chart(chart_data, horizontal=True)
 
     with col2.container(height=min(len(tasks)*80, 400)):
-        st.subheader("Tasks")
+        st.subheader("Tasks ❗️", divider=True)
         for i, task in enumerate(tasks):
             st.checkbox(f"{task[0]} - {task[1]} Reps", key=task[0]+str(i), disabled=True)
 
