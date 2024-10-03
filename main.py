@@ -5,6 +5,13 @@ import mediapipe as mp
 import pandas as pd
 import time
 
+st.set_page_config(
+    page_title="Exercise Tracking",
+    page_icon="🏃‍♂️",
+    layout="wide",
+)
+
+
 @st.cache_resource
 def load_model():
     return mp.solutions.pose
@@ -61,14 +68,14 @@ def main():
     
     col1, col2 = st.columns(2)
     
-    with col1.container(height=255):
+    with col1.container(height=270):
         time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], index=None ,placeholder="Select Time Period")
         chart_data = pd.DataFrame({
             "a": [1, 2, 3],
             "b": [1, 2, 3],
             "c": [1, 2, 10]
         }, columns=["a", "b", "c"])
-        st.bar_chart(chart_data, horizontal=True)
+        st.bar_chart(chart_data, horizontal=True, x_label="Reps")
 
     with col2.container(height=min(len(tasks)*80, 400)):
         st.subheader("Tasks ❗️", divider=True)
