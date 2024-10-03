@@ -39,7 +39,7 @@ def main():
     pose = mp_pose.Pose(static_image_mode=False, model_complexity=1, enable_segmentation=False, smooth_landmarks=True)
 
     st.title("Exercise Tracking")
-
+    
     col1, col2 = st.columns(2)
     
     with col1.container(height=400):
@@ -50,7 +50,7 @@ def main():
     with col2.container(height=min(len(tasks)*80, 400)):
         st.subheader("Tasks")
         for i, task in enumerate(tasks):
-            st.checkbox(f"{task[0]} - {task[1]} Reps", key=task[0]+str(i))
+            st.checkbox(f"{task[0]} - {task[1]} Reps", key=task[0]+str(i), disabled=True)
 
     st.divider()
 
@@ -63,6 +63,14 @@ def main():
         if exercise:
             target_reps = int(exercise.split(" ")[-2])
 
+    if exercise:
+        st.markdown(
+            f"""
+            ```
+            Exercise Tracking : {exercise}
+            ```        
+            """)
+        
     if exercise and target_reps and start_button:
         start_time = time.time()
         target_reps = int(target_reps)
