@@ -32,6 +32,7 @@ def draw_progress_bar(frame: np.ndarray, angle_percentage: float) -> None:
 def main():
     curl_rep = 0
     counting = False
+    tasks = [("Push Up", 10), ("Curl", 20)]
 
     # Initialize MediaPipe Pose
     mp_pose = load_model()
@@ -46,9 +47,8 @@ def main():
         chart_data = pd.DataFrame(np.random.randn(20, 3), columns=["a", "b", "c"])
         st.bar_chart(chart_data)
 
-    with col2.container(height=300):
+    with col2.container(height=min(len(tasks)*80, 400)):
         st.subheader("Tasks")
-        tasks = [("Push Up", 10), ("Curl", 20)]
         for i, task in enumerate(tasks):
             st.checkbox(f"{task[0]} - {task[1]} Reps", key=task[0]+str(i))
 
