@@ -11,6 +11,12 @@ st.set_page_config(
     layout="wide",
 )
 
+@st.cache_resource
+def connect_database():
+    return st.connection("postgresql", type="sql")
+
+conn = connect_database()
+
 
 @st.cache_resource
 def load_model():
@@ -39,7 +45,13 @@ def draw_progress_bar(frame: np.ndarray, angle_percentage: float) -> None:
 def main():
     curl_rep = 0
     counting = False
-    tasks = [("Push Up", 10), ("Curl", 20)]
+    df = conn.query('SELECT * FROM tasks;', ttl="10m")
+    tasks = []
+
+    for row in df.itertuples():
+        # tasks.append((row['exercise'], row['reps']))
+        tasks.append((row.exercise, row.reps))
+        
 
     # Initialize MediaPipe Pose
     mp_pose = load_model()
@@ -69,15 +81,18 @@ def main():
     col1, col2 = st.columns(2)
     
     with col1.container(height=270):
-        time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], index=None ,placeholder="Select Time Period")
-        chart_data = pd.DataFrame({
-            "a": [1, 2, 3],
-            "b": [1, 2, 3],
-            "c": [1, 2, 10]
-        }, columns=["a", "b", "c"])
-        st.bar_chart(chart_data, horizontal=True, x_label="Reps")
+        time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], placeholder="Select Time Period")
+        chart_data = conn.query('SELECT * FROM tasks WHERE status = 1;', ttl="10m")
+        # Convert the timestamp to a datetime format
+        chart_data['assign_date'] = pd.to_datetime(chart_data['assign_date'])
 
-    with col2.container(height=min(len(tasks)*80, 400)):
+        # Extract the date part from the assign_date and group by date
+        chart_data['date'] = chart_data['assign_date'].dt.date
+        chart_data['reps2'] = chart_data['reps']
+        chart_data = chart_data[['reps', 'reps2', 'date']]
+        st.bar_chart(chart_data, x='date', horizontal=True)
+
+    with col2.container(height=min(len(tasks)*60, 400)):
         st.subheader("Tasks ❗️", divider=True)
         for i, task in enumerate(tasks):
             st.checkbox(f"{task[0]} - {task[1]} Reps", key=task[0]+str(i), disabled=True)
