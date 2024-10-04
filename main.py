@@ -45,12 +45,14 @@ def draw_progress_bar(frame: np.ndarray, angle_percentage: float) -> None:
 def main():
     curl_rep = 0
     counting = False
-    df = conn.query('SELECT * FROM tasks;', ttl="10m")
-    tasks = []
+    df = conn.query('SELECT * FROM tasks WHERE status = 0;', ttl="10m")
+    tasks = {}
+    tasks_name = []
 
     for row in df.itertuples():
-        # tasks.append((row['exercise'], row['reps']))
-        tasks.append((row.exercise, row.reps))
+        task_name = f"{row.exercise} - {row.reps} Reps"
+        tasks_name.append(task_name)
+        tasks[row.task_id] = task_name
         
 
     # Initialize MediaPipe Pose
@@ -94,15 +96,15 @@ def main():
 
     with col2.container(height=min(len(tasks)*60, 400)):
         st.subheader("Tasks ❗️", divider=True)
-        for i, task in enumerate(tasks):
-            st.checkbox(f"{task[0]} - {task[1]} Reps", key=task[0]+str(i), disabled=True)
+        for i, task in enumerate(tasks_name):
+            st.checkbox(task, key=task+str(i), disabled=True)
 
     st.divider()
 
     with st.container(height=100):
         left, right = st.columns(2, vertical_alignment="bottom")
 
-        exercise = left.selectbox("Exercise", [" - ".join(map(str, task)) + " " + "Reps" for task in tasks], index=None, placeholder="Select Exercise")
+        exercise = left.selectbox("Exercise", tasks_name, index=None, placeholder="Select Exercise")
         start_button = right.button("Start")
 
         if exercise:
@@ -169,8 +171,11 @@ def main():
                 cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                 if curl_rep >= target_reps:
-                    video_placeholder.empty()
-                    st.success("Task is Done !")
+                    for key in tasks:
+                        if tasks[key] == exercise:
+                            video_placeholder.empty()
+                            st.success("Task is Done !")
+                            break
                     break
 
             video_placeholder.image(frame, channels="RGB")
