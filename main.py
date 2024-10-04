@@ -11,12 +11,6 @@ st.set_page_config(
     layout="wide",
 )
 
-@st.cache_resource
-def connect_database():
-    return st.connection("postgresql", type="sql")
-
-conn = connect_database()
-
 
 @st.cache_resource
 def load_model():
@@ -45,6 +39,8 @@ def draw_progress_bar(frame: np.ndarray, angle_percentage: float) -> None:
 def main():
     curl_rep = 0
     counting = False
+    conn = st.connection("postgresql", type="sql")
+
     df = conn.query('SELECT * FROM tasks WHERE status = 0;', ttl="10m")
     tasks = {}
     tasks_name = []
@@ -94,7 +90,7 @@ def main():
         chart_data = chart_data[['reps', 'reps2', 'date']]
         st.bar_chart(chart_data, x='date', horizontal=True)
 
-    with col2.container(height=min(len(tasks)*60, 400)):
+    with col2.container(height=min(len(tasks)*80, 400)):
         st.subheader("Tasks ❗️", divider=True)
         for i, task in enumerate(tasks_name):
             st.checkbox(task, key=task+str(i), disabled=True)
