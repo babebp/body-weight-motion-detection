@@ -39,6 +39,7 @@ def draw_progress_bar(frame: np.ndarray, angle_percentage: float) -> None:
 
 
 def main():
+    st.title("Exercise Tracking")
     tab1, tab2 = st.tabs(['Main', 'About'])
     with tab1:
         curl_rep = 0
@@ -59,23 +60,20 @@ def main():
         mp_pose = load_model()
         pose = mp_pose.Pose(static_image_mode=False, model_complexity=1, enable_segmentation=False, smooth_landmarks=True)
 
-        st.title("Exercise Tracking")
 
 
-        with st.container(height=280):
+        with st.container(height=250):
             st.markdown(
                 """
                 ### Note 💡
                 ```
-                1. 
+                1. Track your progress and celebrate achievements as you complete exercises. ✅
 
-                2.
+                2. Choose exercises tailored to your goals, with easy tracking and management. ✅
 
-                3.
+                3. Monitor your performance and adjust routines for sustained improvement. ✅
 
-                4.
                 ```
-
                 """
             )
         
@@ -113,7 +111,7 @@ def main():
             left, right = st.columns(2, vertical_alignment="bottom")
 
             exercise = left.selectbox("Exercise", tasks_name, index=None, placeholder="Select Exercise")
-            start_button = right.button("Start")
+            start_button = right.button("Start", disabled=False if exercise else True)
 
             if exercise:
                 target_reps = int(exercise.split(" ")[-2])
