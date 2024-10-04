@@ -4,6 +4,7 @@ import numpy as np
 import mediapipe as mp
 import pandas as pd
 import time
+from sqlalchemy import text
 
 st.set_page_config(
     page_title="Exercise Tracking",
@@ -41,7 +42,7 @@ def main():
     counting = False
     conn = st.connection("postgresql", type="sql")
 
-    df = conn.query('SELECT * FROM tasks WHERE status = 0;', ttl="10m")
+    df = conn.query('SELECT * FROM tasks WHERE status = 0;')
     tasks = {}
     tasks_name = []
 
@@ -80,7 +81,7 @@ def main():
     
     with col1.container(height=270):
         time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], placeholder="Select Time Period")
-        chart_data = conn.query('SELECT * FROM tasks WHERE status = 1;', ttl="10m")
+        chart_data = conn.query('SELECT * FROM tasks WHERE status = 1;')
         # Convert the timestamp to a datetime format
         chart_data['assign_date'] = pd.to_datetime(chart_data['assign_date'])
 
@@ -169,6 +170,17 @@ def main():
                 if curl_rep >= target_reps:
                     for key in tasks:
                         if tasks[key] == exercise:
+                            conn = st.connection("postgresql", type="sql")
+
+                            task_id = key  # Replace with your specific task_id
+                            update_query = text("UPDATE tasks SET status = 1 WHERE task_id = :task_id")
+
+                            # Execute with SQLAlchemy session
+                            with conn.session as s:
+                                s.execute(update_query, {"task_id": task_id})
+                                s.commit()  # Don't forget to commit the changes
+
+                                
                             video_placeholder.empty()
                             st.success("Task is Done !")
                             break
