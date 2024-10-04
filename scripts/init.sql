@@ -13,8 +13,8 @@ CREATE TABLE Tasks (
 -- Insert initial data into Tasks table (with assign_date and status as 0 or 1)
 INSERT INTO Tasks (user_id, exercise, reps, status, assign_date) 
 VALUES
-(1, 'Bicep Curl', 10, 1, '2024-01-10 08:30:00'),  -- Finished, assigned on 2024-01-10
-(2, 'Squat', 15, 0, '2024-01-11 09:00:00'),       -- Not finished, assigned on 2024-01-11
-(1, 'Push Up', 20, 1, '2024-01-12 10:00:00'),     -- Finished, assigned on 2024-01-12
-(3, 'Lunges', 12, 0, '2024-01-13 11:15:00'),      -- Not finished, assigned on 2024-01-13
-(2, 'Pull Up', 8, 1, '2024-01-14 12:20:00');      -- Finished, assigned on 2024-01-14
+(1, 'Bicep Curl', 10, 1, '2024-09-30 08:30:00'),  -- Finished, assigned on 2024-09-10
+(2, 'Squat', 15, 0, '2024-09-30 09:00:00'),       -- Not finished, assigned on 2024-09-11
+(1, 'Push Up', 20, 1, '2024-09-30 10:00:00'),     -- Finished, assigned on 2024-09-12
+(3, 'Lunges', 12, 0, '2024-09-30 11:15:00'),      -- Not finished, assigned on 2024-09-13
+(2, 'Pull Up', 8, 1, '2024-09-30 12:20:00');      -- Finished, assigned on 2024-09-14
