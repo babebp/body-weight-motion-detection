@@ -48,6 +48,14 @@ def main():
     st.title("Exercise Tracking")
     tab1, tab2 = st.tabs(['Main', 'About'])
 
+    if 'toast_message' not in st.session_state:
+        st.session_state.toast_message = None
+
+    # Display the toast message if it exists
+    if st.session_state.toast_message:
+        st.toast(st.session_state.toast_message)
+        st.session_state.toast_message = None
+
     with tab1:
         curl_rep = 0
         counting = False
@@ -182,9 +190,10 @@ def main():
                     cv2.putText(frame, f'Curls: {curl_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                     cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
+    
+                    # Finish Task
                     if curl_rep >= target_reps:
-                        st.toast('Task is done! ✅')
+                        st.session_state.toast_message = 'Task is done! ✅'
                         for key in tasks:
                             if tasks[key] == exercise:
                                 conn = st.connection("postgresql", type="sql")
@@ -199,10 +208,7 @@ def main():
                                     s.commit()  # Don't forget to commit the changes
 
                                 video_placeholder.empty()
-
-                                with st.spinner("Updating"):
-                                    time.sleep(4)
-                                    st.rerun()
+                                st.rerun()
                                 break
                         break
 
