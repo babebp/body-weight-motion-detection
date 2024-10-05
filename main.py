@@ -145,7 +145,7 @@ def main():
                 ```        
                 """)
             
-        if exercise and "Push Up" in exercise  and start_button:
+        if exercise and "Bicep Curl" in exercise  and start_button:
             start_time = time.time()
             target_reps = int(target_reps)
             video_placeholder = st.empty()
