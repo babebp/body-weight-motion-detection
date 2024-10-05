@@ -37,16 +37,21 @@ def draw_progress_bar(frame: np.ndarray, angle_percentage: float) -> None:
     progress_bar_length = int(angle_percentage / 100 * progress_bar_width)
     cv2.rectangle(frame, (10, 100), (10 + progress_bar_length, 130), (0, 255, 0), -1)  # Progress bar
 
+# @st.fragment(run_every="2s")
+def get_task_names(status):
+    conn = st.connection("postgresql", type="sql")
+    return conn.query(f'SELECT * FROM tasks WHERE status = {status};', ttl=0)
+
 
 def main():
     st.title("Exercise Tracking")
     tab1, tab2 = st.tabs(['Main', 'About'])
+
     with tab1:
         curl_rep = 0
         counting = False
-        conn = st.connection("postgresql", type="sql")
 
-        df = conn.query('SELECT * FROM tasks WHERE status = 0;')
+        df = get_task_names(0)
         tasks = {}
         tasks_name = []
 
@@ -82,7 +87,7 @@ def main():
         
         with col1.container(height=550):
             time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], placeholder="Select Time Period")
-            chart_data = conn.query('SELECT * FROM tasks WHERE status = 1;')
+            chart_data = get_task_names(1)
             options = {
                 "chart": {
                     "toolbar": {
@@ -124,7 +129,7 @@ def main():
                 ```        
                 """)
             
-        if exercise and target_reps and start_button:
+        if exercise and "Push Up" in exercise  and start_button:
             start_time = time.time()
             target_reps = int(target_reps)
             video_placeholder = st.empty()
@@ -190,13 +195,14 @@ def main():
                                     s.execute(update_query, {"task_id": task_id})
                                     s.commit()  # Don't forget to commit the changes
 
-                                    
                                 video_placeholder.empty()
                                 st.success("Task is Done !")
+                                st.rerun()
                                 break
                         break
 
                 video_placeholder.image(frame, channels="RGB")
+
     with tab2:
         st.markdown(
             """ 
