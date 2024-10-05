@@ -184,6 +184,7 @@ def main():
                     cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                     if curl_rep >= target_reps:
+                        st.toast('Task is done! ✅')
                         for key in tasks:
                             if tasks[key] == exercise:
                                 conn = st.connection("postgresql", type="sql")
@@ -198,14 +199,17 @@ def main():
                                     s.commit()  # Don't forget to commit the changes
 
                                 video_placeholder.empty()
-                                st.success("Task is Done !")
-                                st.rerun()
+
+                                with st.spinner("Updating"):
+                                    time.sleep(4)
+                                    st.rerun()
                                 break
                         break
 
                 video_placeholder.image(frame, channels="RGB")
 
     with tab2:
+        
         st.markdown(
             """ 
             ```
