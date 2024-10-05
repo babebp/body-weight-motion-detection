@@ -39,9 +39,9 @@ def draw_progress_bar(frame: np.ndarray, angle_percentage: float) -> None:
     cv2.rectangle(frame, (10, 100), (10 + progress_bar_length, 130), (0, 255, 0), -1)  # Progress bar
 
 # @st.fragment(run_every="2s")
-def get_task_names(status):
+def get_task_names(status, date):
     conn = st.connection("postgresql", type="sql")
-    return conn.query(f'SELECT * FROM tasks WHERE status = {status};', ttl=0)
+    return conn.query(f"SELECT * FROM tasks WHERE status = {status} AND DATE(assign_date) = '{date}';", ttl=0)
 
 
 def main():
@@ -60,7 +60,8 @@ def main():
         curl_rep = 0
         counting = False
 
-        df = get_task_names(0)
+        today = datetime.datetime.today().date()
+        df = get_task_names(0, today)
         tasks = {}
         tasks_name = []
 
@@ -97,7 +98,7 @@ def main():
         with col1.container(height=550):
             # time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], placeholder="Select Time Period")
             d = st.date_input("Select Date", datetime.date.today())
-            chart_data = get_task_names(1)
+            chart_data = get_task_names(1, d)
             options = {
                 "chart": {
                     "toolbar": {
