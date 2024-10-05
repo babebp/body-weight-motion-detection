@@ -99,6 +99,12 @@ def main():
             # time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], placeholder="Select Time Period")
             d = st.date_input("Select Date", datetime.date.today())
             chart_data = get_task_names(1, d)
+            chart_data['date'] = pd.to_datetime(chart_data['assign_date']).dt.date
+
+            # Group by date and pivot the exercises into columns
+            result = chart_data.pivot_table(columns='exercise', values='reps', aggfunc='sum', fill_value=0)
+            # result.drop(columns='date', inplace=True)
+            st.dataframe(result)
             options = {
                 "chart": {
                     "toolbar": {
@@ -106,15 +112,15 @@ def main():
                     }
                 },
 
-                "labels": [1991, 1992, 1993, 1994, 1995]
+                "labels": result.columns.to_list()
                 ,
                 "legend": {
                     "show": True,
-                    "position": "bottom",
+                    "position": "right",
                 }
             }
-            series = [44, 55, 41, 17, 15]
-            st_apexcharts(options, series, 'donut', '400', 'Daily Summary')
+            series = result.iloc[0].to_list()
+            st_apexcharts(options, series, 'donut', '380', 'Daily Summary')
 
         with col2.container(height=550):
             st.subheader("Tasks ❗️", divider=True)
