@@ -45,6 +45,68 @@ def get_task_names(status, date):
     return conn.query(f"SELECT * FROM tasks WHERE status = {status} AND DATE(assign_date) = '{date}';", ttl=0)
 
 
+def track_bicep_curl(exercise, target_reps, pose, mp_pose):
+    curl_rep = 0
+    counting = False
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+            elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+            wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+
+            # Calculate the angle
+            angle = calculate_angle(shoulder, elbow, wrist)
+
+            # Calculate the percentage for the progress bar (30 to 90 degrees)
+            angle_percentage = 100 if angle < 30 else (0 if angle > 90 else (90 - angle) / 60 * 100)
+
+            # Count curls
+            if angle < 30 and counting:
+                curl_rep += 1
+                counting = False
+            elif angle > 80:
+                counting = True
+
+            # Display the angle
+            cv2.putText(frame, f'Angle: {int(angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Draw progress bar
+            draw_progress_bar(frame, angle_percentage)
+
+            # Display curl count
+            cv2.putText(frame, f'Curls: {curl_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task
+            if curl_rep >= target_reps:
+                st.session_state.toast_message = 'Task is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
+
 def main():
     st.title("Exercise Tracking")
     tab1, tab2 = st.tabs(['Main', 'About'])
@@ -148,81 +210,24 @@ def main():
                 ```        
                 """)
             
-        if exercise and "Bicep Curl" in exercise  and start_button:
-            start_time = time.time()
-            target_reps = int(target_reps)
-            video_placeholder = st.empty()
+        # Use the function inside the condition
+        if exercise and "Bicep Curl" in exercise and start_button:
+            task_completed = track_bicep_curl(exercise, target_reps, pose, mp_pose)
+            if task_completed:
+                # Update the task status in the database
+                for key in tasks:
+                    if tasks[key] == exercise:
+                        conn = st.connection("postgresql", type="sql")
+                        tasks_name.remove(exercise)
 
-            if not stop_button:
-                cap = cv2.VideoCapture(0)
-            while True:
-                ret, frame = cap.read()
-                if not ret:
-                    st.error("Failed to capture image.")
-                    break
+                        task_id = key
+                        update_query = text("UPDATE tasks SET status = 1 WHERE task_id = :task_id")
 
-                frame = cv2.flip(frame, 1)
-                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        with conn.session as s:
+                            s.execute(update_query, {"task_id": task_id})
+                            s.commit()
 
-                # Process the image and get the pose landmarks
-                results = pose.process(frame)
-
-                if exercise and results.pose_landmarks:
-                    # Draw landmarks
-                    mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
-
-                    # Get key points
-                    landmarks = results.pose_landmarks.landmark
-                    shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
-                    elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
-                    wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
-
-                    # Calculate the angle
-                    angle = calculate_angle(shoulder, elbow, wrist)
-
-                    # Calculate the percentage for the progress bar (30 to 90 degrees)
-                    angle_percentage = 100 if angle < 30 else (0 if angle > 90 else (90 - angle) / 60 * 100)
-
-                    # Count curls
-                    if angle < 30 and counting:
-                        curl_rep += 1
-                        counting = False
-                    elif angle > 80:
-                        counting = True
-
-                    # Display the angle
-                    cv2.putText(frame, f'Angle: {int(angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-                    # Draw progress bar
-                    draw_progress_bar(frame, angle_percentage)
-
-                    # Display curl count
-                    cv2.putText(frame, f'Curls: {curl_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
-                    cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    
-                    # Finish Task
-                    if curl_rep >= target_reps:
-                        st.session_state.toast_message = 'Task is done! ✅'
-                        for key in tasks:
-                            if tasks[key] == exercise:
-                                conn = st.connection("postgresql", type="sql")
-                                tasks_name.remove(exercise)
-
-                                task_id = key  # Replace with your specific task_id
-                                update_query = text("UPDATE tasks SET status = 1 WHERE task_id = :task_id")
-
-                                # Execute with SQLAlchemy session
-                                with conn.session as s:
-                                    s.execute(update_query, {"task_id": task_id})
-                                    s.commit()  # Don't forget to commit the changes
-
-                                video_placeholder.empty()
-                                st.rerun()
-                                break
-                        break
-
-                video_placeholder.image(frame, channels="RGB")
+                st.rerun()
 
     with tab2:
         
