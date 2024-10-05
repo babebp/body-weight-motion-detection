@@ -151,3 +151,60 @@ def track_push_up(exercise, target_reps, pose, mp_pose):
         video_placeholder.image(frame, channels="RGB")
 
     return False  # Task is not completed
+
+def track_leg_press(exercise, target_reps, pose, mp_pose):
+    """Track Leg Press using MediaPipe pose estimation"""
+    leg_press_rep = 0
+    counting = False
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+            knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+            ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+            # Calculate the angle
+            knee_angle = calculate_angle(hip, knee, ankle)
+
+            # Count leg presses based on knee angle
+            if knee_angle < 70 and counting:
+                leg_press_rep += 1
+                counting = False
+            elif knee_angle > 160:
+                counting = True
+
+            # Display the angle
+            cv2.putText(frame, f'Knee Angle: {int(knee_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Display leg press count
+            cv2.putText(frame, f'Leg Presses: {leg_press_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task
+            if leg_press_rep >= target_reps:
+                st.session_state.toast_message = 'Task is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
