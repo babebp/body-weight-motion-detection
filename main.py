@@ -6,6 +6,7 @@ import pandas as pd
 import time
 from sqlalchemy import text
 from streamlit_apexjs import st_apexcharts
+import datetime
 
 st.set_page_config(
     page_title="Exercise Tracking",
@@ -86,7 +87,8 @@ def main():
         col1, col2, col3 = st.columns(3)
         
         with col1.container(height=550):
-            time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], placeholder="Select Time Period")
+            # time_period = st.selectbox("Time Period", ["Day", "Week", "Month"], placeholder="Select Time Period")
+            d = st.date_input("Select Date", datetime.date.today())
             chart_data = get_task_names(1)
             options = {
                 "chart": {
