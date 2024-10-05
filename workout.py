@@ -87,3 +87,67 @@ def track_bicep_curl(exercise, target_reps, pose, mp_pose):
         video_placeholder.image(frame, channels="RGB")
 
     return False  # Task is not completed
+
+
+def track_push_up(exercise, target_reps, pose, mp_pose):
+    """Track Push Up using MediaPipe pose estimation"""
+    push_up_rep = 0
+    counting = False
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+            elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+            wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+
+            hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+            knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+            ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+            # Calculate the angles
+            elbow_angle = calculate_angle(shoulder, elbow, wrist)
+            hip_angle = calculate_angle(shoulder, hip, knee)
+
+            # Count push ups based on elbow angle
+            if elbow_angle < 70 and counting:
+                push_up_rep += 1
+                counting = False
+            elif elbow_angle > 160:
+                counting = True
+
+            # Display the angles
+            cv2.putText(frame, f'Elbow Angle: {int(elbow_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.putText(frame, f'Hip Angle: {int(hip_angle)}', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Display push up count
+            cv2.putText(frame, f'Push Ups: {push_up_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task
+            if push_up_rep >= target_reps:
+                st.session_state.toast_message = 'Task is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
