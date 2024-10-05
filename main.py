@@ -119,7 +119,7 @@ def main():
                 }
             }
             series = result.iloc[0].to_list()
-            st_apexcharts(options, series, 'donut', '380', 'Daily Summary')
+            st_apexcharts(options, series, 'donut', '470', 'Daily Summary')
 
         with col2.container(height=550):
             st.subheader("Tasks ❗️", divider=True)
