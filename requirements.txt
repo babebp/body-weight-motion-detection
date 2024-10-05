@@ -34,6 +34,7 @@ packaging==24.1
 pandas==2.2.2
 pillow==10.4.0
 protobuf==4.25.5
+psycopg2-binary==2.9.9
 pyarrow==17.0.0
 pycparser==2.22
 pydeck==0.9.1
@@ -52,6 +53,7 @@ smmap==5.0.1
 sounddevice==0.5.0
 SQLAlchemy==2.0.35
 streamlit==1.39.0
+streamlit-apexjs==0.0.3
 tenacity==9.0.0
 toml==0.10.2
 tornado==6.4.1
