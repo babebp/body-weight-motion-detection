@@ -87,8 +87,6 @@ def track_bicep_curl(exercise, target_reps, pose, mp_pose):
         video_placeholder.image(frame, channels="RGB")
 
     return False  # Task is not completed
-
-
 def track_push_up(exercise, target_reps, pose, mp_pose):
     """Track Push Up using MediaPipe pose estimation"""
     push_up_rep = 0
@@ -127,6 +125,9 @@ def track_push_up(exercise, target_reps, pose, mp_pose):
             elbow_angle = calculate_angle(shoulder, elbow, wrist)
             hip_angle = calculate_angle(shoulder, hip, knee)
 
+            # Calculate the percentage for the progress bar (similar to Bicep Curl, for 70 to 160 degrees)
+            angle_percentage = 100 if elbow_angle < 70 else (0 if elbow_angle > 160 else (160 - elbow_angle) / 90 * 100)
+
             # Count push ups based on elbow angle
             if elbow_angle < 70 and counting:
                 push_up_rep += 1
@@ -138,9 +139,13 @@ def track_push_up(exercise, target_reps, pose, mp_pose):
             cv2.putText(frame, f'Elbow Angle: {int(elbow_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             cv2.putText(frame, f'Hip Angle: {int(hip_angle)}', (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+            # Draw progress bar
+            draw_progress_bar(frame, angle_percentage)
+
             # Display push up count
             cv2.putText(frame, f'Push Ups: {push_up_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+            # Display time
             cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
             # Finish Task
@@ -185,6 +190,9 @@ def track_leg_press(exercise, target_reps, pose, mp_pose):
             # Calculate the angle
             knee_angle = calculate_angle(hip, knee, ankle)
 
+            # Calculate the percentage for the progress bar (similar to Squat, for 70 to 160 degrees)
+            angle_percentage = 100 if knee_angle < 70 else (0 if knee_angle > 160 else (160 - knee_angle) / 90 * 100)
+
             # Count leg presses based on knee angle
             if knee_angle < 70 and counting:
                 leg_press_rep += 1
@@ -195,9 +203,13 @@ def track_leg_press(exercise, target_reps, pose, mp_pose):
             # Display the angle
             cv2.putText(frame, f'Knee Angle: {int(knee_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+            # Draw progress bar
+            draw_progress_bar(frame, angle_percentage)
+
             # Display leg press count
             cv2.putText(frame, f'Leg Presses: {leg_press_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+            # Display time
             cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
             # Finish Task
@@ -295,7 +307,7 @@ def track_tricep_dip(exercise, target_reps, pose, mp_pose):
             # Calculate the angle
             angle = calculate_angle(shoulder, elbow, wrist)
 
-            # Calculate the percentage for the progress bar (30 to 90 degrees)
+            # Calculate the percentage for the progress bar (60 to 120 degrees)
             angle_percentage = 100 if angle < 60 else (0 if angle > 120 else (120 - angle) / 60 * 100)
 
             # Count dips
@@ -308,9 +320,13 @@ def track_tricep_dip(exercise, target_reps, pose, mp_pose):
             # Display the angle
             cv2.putText(frame, f'Angle: {int(angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+            # Draw progress bar
+            draw_progress_bar(frame, angle_percentage)
+
             # Display rep count
             cv2.putText(frame, f'Dips: {dip_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+            # Display time
             cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
             # Finish Task
@@ -321,6 +337,7 @@ def track_tricep_dip(exercise, target_reps, pose, mp_pose):
         video_placeholder.image(frame, channels="RGB")
 
     return False  # Task is not completed
+
 
 def track_squat(exercise, target_reps, pose, mp_pose):
     """Track Squat using MediaPipe pose estimation"""
@@ -355,6 +372,9 @@ def track_squat(exercise, target_reps, pose, mp_pose):
             # Calculate the angle
             knee_angle = calculate_angle(hip, knee, ankle)
 
+            # Calculate the percentage for the progress bar (70 to 160 degrees)
+            angle_percentage = 100 if knee_angle < 70 else (0 if knee_angle > 160 else (160 - knee_angle) / 90 * 100)
+
             # Count squats based on knee angle
             if knee_angle < 70 and counting:
                 squat_rep += 1
@@ -364,6 +384,9 @@ def track_squat(exercise, target_reps, pose, mp_pose):
 
             # Display the angle
             cv2.putText(frame, f'Knee Angle: {int(knee_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Draw progress bar
+            draw_progress_bar(frame, angle_percentage)
 
             # Display squat count
             cv2.putText(frame, f'Squats: {squat_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -412,6 +435,9 @@ def track_burpee(exercise, target_reps, pose, mp_pose):
             # Calculate the angle
             knee_angle = calculate_angle(hip, knee, ankle)
 
+            # Calculate the percentage for the progress bar (70 to 160 degrees)
+            angle_percentage = 100 if knee_angle < 70 else (0 if knee_angle > 160 else (160 - knee_angle) / 90 * 100)
+
             # Count burpees based on knee angle and motion
             if knee_angle < 70 and counting:
                 burpee_rep += 1
@@ -421,6 +447,9 @@ def track_burpee(exercise, target_reps, pose, mp_pose):
 
             # Display the angle
             cv2.putText(frame, f'Knee Angle: {int(knee_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Draw progress bar
+            draw_progress_bar(frame, angle_percentage)
 
             # Display burpee count
             cv2.putText(frame, f'Burpees: {burpee_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -435,6 +464,7 @@ def track_burpee(exercise, target_reps, pose, mp_pose):
         video_placeholder.image(frame, channels="RGB")
 
     return False  # Task is not completed
+
 
 def track_pull_up(exercise, target_reps, pose, mp_pose):
     """Track Pull-Up using MediaPipe pose estimation"""
@@ -498,6 +528,7 @@ def track_pull_up(exercise, target_reps, pose, mp_pose):
         video_placeholder.image(frame, channels="RGB")
 
     return False  # Task is not completed
+
 def track_lunge(exercise, target_reps, pose, mp_pose):
     """Track Lunge using MediaPipe pose estimation"""
     lunge_rep = 0
