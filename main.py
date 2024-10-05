@@ -103,8 +103,7 @@ def main():
 
             # Group by date and pivot the exercises into columns
             result = chart_data.pivot_table(columns='exercise', values='reps', aggfunc='sum', fill_value=0)
-            # result.drop(columns='date', inplace=True)
-            st.dataframe(result)
+
             options = {
                 "chart": {
                     "toolbar": {
