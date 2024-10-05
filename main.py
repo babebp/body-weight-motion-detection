@@ -6,7 +6,7 @@ import time
 from sqlalchemy import text
 from streamlit_apexjs import st_apexcharts
 import datetime
-from workout import track_bicep_curl,track_push_up,track_leg_press   # Import the Bicep Curl function
+from workout import EXCERCISE_FUNCTIONS,track_bicep_curl,track_push_up,track_leg_press   # Import the Bicep Curl function
 
 st.set_page_config(
     page_title="Exercise Tracking",
@@ -39,7 +39,7 @@ def main():
 
     with tab1:
         today = datetime.datetime.today().date()
-        today = "2024-10-04 00:00:00"
+        today = "2024-10-02 00:00:00"
         df = get_task_names(0, today)
         tasks = {}
         tasks_name = []
@@ -118,60 +118,26 @@ def main():
                 ```        
                 """)
             
-        # Track Bicep Curl
-        if exercise and "Bicep Curl" in exercise and start_button:
-            task_completed = track_bicep_curl(exercise, target_reps, pose, mp_pose)
-            if task_completed:
-                # Update the task status in the database
-                for key in tasks:
-                    if tasks[key] == exercise:
-                        conn = st.connection("postgresql", type="sql")
-                        tasks_name.remove(exercise)
+        if exercise and start_button:
+            # Loop through the available exercises and track if match is found
+            for exercise_name, track_function in EXCERCISE_FUNCTIONS.items():
+                if exercise_name in exercise:
+                    task_completed = track_function(exercise, target_reps, pose, mp_pose)
+                    if task_completed:
+                        # Update the task status in the database
+                        for key in tasks:
+                            if tasks[key] == exercise:
+                                conn = st.connection("postgresql", type="sql")
+                                tasks_name.remove(exercise)
 
-                        task_id = key
-                        update_query = text("UPDATE tasks SET status = 1 WHERE task_id = :task_id")
+                                task_id = key
+                                update_query = text("UPDATE tasks SET status = 1 WHERE task_id = :task_id")
 
-                        with conn.session as s:
-                            s.execute(update_query, {"task_id": task_id})
-                            s.commit()
+                                with conn.session as s:
+                                    s.execute(update_query, {"task_id": task_id})
+                                    s.commit()
 
-                st.rerun()
-
-        if exercise and "Push Up" in exercise and start_button:
-            task_completed = track_push_up(exercise, target_reps, pose, mp_pose)
-            if task_completed:
-                # Update the task status in the database
-                for key in tasks:
-                    if tasks[key] == exercise:
-                        conn = st.connection("postgresql", type="sql")
-                        tasks_name.remove(exercise)
-
-                        task_id = key
-                        update_query = text("UPDATE tasks SET status = 1 WHERE task_id = :task_id")
-
-                        with conn.session as s:
-                            s.execute(update_query, {"task_id": task_id})
-                            s.commit()
-
-                st.rerun()
-
-        if exercise and "Leg Press" in exercise and start_button:
-            task_completed = track_leg_press(exercise, target_reps, pose, mp_pose)
-            if task_completed:
-                # Update the task status in the database
-                for key in tasks:
-                    if tasks[key] == exercise:
-                        conn = st.connection("postgresql", type="sql")
-                        tasks_name.remove(exercise)
-
-                        task_id = key
-                        update_query = text("UPDATE tasks SET status = 1 WHERE task_id = :task_id")
-
-                        with conn.session as s:
-                            s.execute(update_query, {"task_id": task_id})
-                            s.commit()
-
-                st.rerun()
+                        st.rerun()
 
     with tab2:
         st.markdown(

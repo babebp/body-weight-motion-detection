@@ -208,3 +208,10 @@ def track_leg_press(exercise, target_reps, pose, mp_pose):
         video_placeholder.image(frame, channels="RGB")
 
     return False  # Task is not completed
+
+# Mapping between exercise names and tracking functions
+EXCERCISE_FUNCTIONS = {
+    "Bicep Curl": track_bicep_curl,
+    "Push Up": track_push_up,
+    "Leg Press": track_leg_press
+}
