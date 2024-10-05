@@ -436,6 +436,195 @@ def track_burpee(exercise, target_reps, pose, mp_pose):
 
     return False  # Task is not completed
 
+def track_pull_up(exercise, target_reps, pose, mp_pose):
+    """Track Pull-Up using MediaPipe pose estimation"""
+    pull_up_rep = 0
+    counting = False
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+            elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+            wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+
+            # Calculate the angle
+            angle = calculate_angle(shoulder, elbow, wrist)
+
+            # Calculate the percentage for the progress bar (30 to 90 degrees)
+            angle_percentage = 100 if angle < 30 else (0 if angle > 90 else (90 - angle) / 60 * 100)
+
+            # Count pull-ups
+            if angle < 30 and counting:
+                pull_up_rep += 1
+                counting = False
+            elif angle > 80:
+                counting = True
+
+            # Display the angle
+            cv2.putText(frame, f'Angle: {int(angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Draw progress bar
+            draw_progress_bar(frame, angle_percentage)
+
+            # Display pull-up count
+            cv2.putText(frame, f'Pull-Ups: {pull_up_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task
+            if pull_up_rep >= target_reps:
+                st.session_state.toast_message = 'Task is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
+def track_lunge(exercise, target_reps, pose, mp_pose):
+    """Track Lunge using MediaPipe pose estimation"""
+    lunge_rep = 0
+    counting = False
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+            knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+            ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+            # Calculate the angle
+            knee_angle = calculate_angle(hip, knee, ankle)
+
+            # Calculate the percentage for the progress bar (30 to 90 degrees)
+            angle_percentage = 100 if knee_angle < 70 else (0 if knee_angle > 160 else (160 - knee_angle) / 90 * 100)
+
+            # Count lunges based on knee angle
+            if knee_angle < 70 and counting:
+                lunge_rep += 1
+                counting = False
+            elif knee_angle > 160:
+                counting = True
+
+            # Display the angle
+            cv2.putText(frame, f'Knee Angle: {int(knee_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Draw progress bar
+            draw_progress_bar(frame, angle_percentage)
+
+            # Display lunge count
+            cv2.putText(frame, f'Lunges: {lunge_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task
+            if lunge_rep >= target_reps:
+                st.session_state.toast_message = 'Task is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
+
+def track_bench_press(exercise, target_reps, pose, mp_pose):
+    """Track Bench Press using MediaPipe pose estimation"""
+    bench_press_rep = 0
+    counting = False
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+            elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+            wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+
+            # Calculate the angle
+            elbow_angle = calculate_angle(shoulder, elbow, wrist)
+
+            # Calculate the percentage for the progress bar (30 to 90 degrees)
+            angle_percentage = 100 if elbow_angle < 60 else (0 if elbow_angle > 160 else (160 - elbow_angle) / 100 * 100)
+
+            # Count bench presses based on elbow angle
+            if elbow_angle < 60 and counting:
+                bench_press_rep += 1
+                counting = False
+            elif elbow_angle > 160:
+                counting = True
+
+            # Display the angle
+            cv2.putText(frame, f'Elbow Angle: {int(elbow_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Draw progress bar
+            draw_progress_bar(frame, angle_percentage)
+
+            # Display bench press count
+            cv2.putText(frame, f'Bench Presses: {bench_press_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task
+            if bench_press_rep >= target_reps:
+                st.session_state.toast_message = 'Task is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
+
+
 # Mapping between exercise names and tracking functions
 EXCERCISE_FUNCTIONS = {
     "Bicep Curl": track_bicep_curl,
@@ -445,4 +634,8 @@ EXCERCISE_FUNCTIONS = {
     "Tricep Dip": track_tricep_dip,
     "Squat": track_squat,
     "Burpee": track_burpee,
+    "Pull-Up": track_pull_up,
+    "Lunge": track_lunge,
+    "Bench Press": track_bench_press,
 }
+
