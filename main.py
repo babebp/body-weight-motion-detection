@@ -41,6 +41,7 @@ def draw_progress_bar(frame: np.ndarray, angle_percentage: float) -> None:
 # @st.fragment(run_every="2s")
 def get_task_names(status, date):
     conn = st.connection("postgresql", type="sql")
+    query_sql = conn.query(f"SELECT * FROM tasks WHERE status = {status} AND DATE(assign_date) = '{date}';", ttl=0)
     return conn.query(f"SELECT * FROM tasks WHERE status = {status} AND DATE(assign_date) = '{date}';", ttl=0)
 
 
@@ -61,6 +62,7 @@ def main():
         counting = False
 
         today = datetime.datetime.today().date()
+        # today = "2024-10-02 23:00:00"
         df = get_task_names(0, today)
         tasks = {}
         tasks_name = []
@@ -129,10 +131,11 @@ def main():
         st.divider()
 
         with st.container(height=100):
-            left, right = st.columns(2, vertical_alignment="bottom")
+            left, middle, right = st.columns(3, vertical_alignment="bottom")
 
             exercise = left.selectbox("Exercise", tasks_name, index=None, placeholder="Select Exercise")
-            start_button = right.button("Start", disabled=False if exercise else True)
+            start_button = middle.button("Start", disabled=False if exercise else True)
+            stop_button = right.button("Stop", disabled=False if exercise else True)
 
             if exercise:
                 target_reps = int(exercise.split(" ")[-2])
@@ -150,7 +153,8 @@ def main():
             target_reps = int(target_reps)
             video_placeholder = st.empty()
 
-            cap = cv2.VideoCapture(0)
+            if not stop_button:
+                cap = cv2.VideoCapture(0)
             while True:
                 ret, frame = cap.read()
                 if not ret:
