@@ -209,9 +209,240 @@ def track_leg_press(exercise, target_reps, pose, mp_pose):
 
     return False  # Task is not completed
 
+def track_plank(exercise, target_reps, pose, mp_pose):
+    """Track Plank using MediaPipe pose estimation"""
+    plank_time = 0
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+            hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+            ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+            # Calculate the angle at the hip
+            hip_angle = calculate_angle(shoulder, hip, ankle)
+
+            # Check if the angle is within the plank position range (e.g., 150-180 degrees)
+            if 150 <= hip_angle <= 180:
+                plank_time = time.time() - start_time
+
+            # Display the hip angle
+            cv2.putText(frame, f'Hip Angle: {int(hip_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Display plank time
+            cv2.putText(frame, f'Plank Time: {int(plank_time)} seconds', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task if user has held the plank for the target time (e.g., target_reps as seconds)
+            if plank_time >= target_reps:
+                st.session_state.toast_message = 'Plank is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
+
+def track_tricep_dip(exercise, target_reps, pose, mp_pose):
+    """Track Tricep Dip using MediaPipe pose estimation"""
+    dip_rep = 0
+    counting = False
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x, landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+            elbow = [landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ELBOW.value].y]
+            wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x, landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+
+            # Calculate the angle
+            angle = calculate_angle(shoulder, elbow, wrist)
+
+            # Calculate the percentage for the progress bar (30 to 90 degrees)
+            angle_percentage = 100 if angle < 60 else (0 if angle > 120 else (120 - angle) / 60 * 100)
+
+            # Count dips
+            if angle < 60 and counting:
+                dip_rep += 1
+                counting = False
+            elif angle > 120:
+                counting = True
+
+            # Display the angle
+            cv2.putText(frame, f'Angle: {int(angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Display rep count
+            cv2.putText(frame, f'Dips: {dip_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task
+            if dip_rep >= target_reps:
+                st.session_state.toast_message = 'Task is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
+
+def track_squat(exercise, target_reps, pose, mp_pose):
+    """Track Squat using MediaPipe pose estimation"""
+    squat_rep = 0
+    counting = False
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+            knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+            ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+            # Calculate the angle
+            knee_angle = calculate_angle(hip, knee, ankle)
+
+            # Count squats based on knee angle
+            if knee_angle < 70 and counting:
+                squat_rep += 1
+                counting = False
+            elif knee_angle > 160:
+                counting = True
+
+            # Display the angle
+            cv2.putText(frame, f'Knee Angle: {int(knee_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Display squat count
+            cv2.putText(frame, f'Squats: {squat_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task
+            if squat_rep >= target_reps:
+                st.session_state.toast_message = 'Task is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
+
+def track_burpee(exercise, target_reps, pose, mp_pose):
+    """Track Burpee using MediaPipe pose estimation"""
+    burpee_rep = 0
+    counting = False
+    start_time = time.time()
+    video_placeholder = st.empty()
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            st.error("Failed to capture image.")
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process the image and get the pose landmarks
+        results = pose.process(frame)
+
+        if exercise and results.pose_landmarks:
+            # Draw landmarks
+            mp.solutions.drawing_utils.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            # Get key points
+            landmarks = results.pose_landmarks.landmark
+            hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x, landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+            knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+            ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x, landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
+
+            # Calculate the angle
+            knee_angle = calculate_angle(hip, knee, ankle)
+
+            # Count burpees based on knee angle and motion
+            if knee_angle < 70 and counting:
+                burpee_rep += 1
+                counting = False
+            elif knee_angle > 160:
+                counting = True
+
+            # Display the angle
+            cv2.putText(frame, f'Knee Angle: {int(knee_angle)}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Display burpee count
+            cv2.putText(frame, f'Burpees: {burpee_rep}/{target_reps}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            cv2.putText(frame, f'Time: {time.time() - start_time}', (300, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Finish Task
+            if burpee_rep >= target_reps:
+                st.session_state.toast_message = 'Task is done! ✅'
+                return True  # Task is completed
+
+        video_placeholder.image(frame, channels="RGB")
+
+    return False  # Task is not completed
+
 # Mapping between exercise names and tracking functions
 EXCERCISE_FUNCTIONS = {
     "Bicep Curl": track_bicep_curl,
     "Push Up": track_push_up,
-    "Leg Press": track_leg_press
+    "Leg Press": track_leg_press,
+    "Plank": track_plank,
+    "Tricep Dip": track_tricep_dip,
+    "Squat": track_squat,
+    "Burpee": track_burpee,
 }
