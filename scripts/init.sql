@@ -14,7 +14,7 @@ CREATE TABLE Tasks (
 INSERT INTO Tasks (user_id, exercise, reps, status, assign_date) 
 VALUES
 -- Day 1
-(1, 'Deadlift', 12, 1, '2024-10-01 08:05:00'),  -- Finished
+(1, 'Bicep Curl', 12, 1, '2024-10-01 08:05:00'),  -- Finished
 (2, 'Bench Press', 8, 0, '2024-10-01 10:00:00'),  -- Not finished
 (3, 'Leg Press', 10, 1, '2024-10-01 10:15:00'),   -- Finished
 (4, 'Plank', 30, 0, '2024-10-01 11:30:00'),       -- Not finished
@@ -26,19 +26,19 @@ VALUES
 (10, 'Burpee', 20, 1, '2024-10-01 17:00:00'),      -- Finished
 
 -- Day 2
-(11, 'Deadlift', 14, 0, '2024-10-02 08:05:00'),   -- Not finished
+(11, 'Bicep Curl', 14, 0, '2024-10-02 08:05:00'),   -- Not finished
 (12, 'Squat', 10, 1, '2024-10-02 10:00:00'),       -- Finished
 (13, 'Burpee', 20, 0, '2024-10-02 11:00:00'),      -- Not finished
 (14, 'Row', 16, 1, '2024-10-02 12:20:00'),         -- Finished
 (15, 'Plank', 60, 0, '2024-10-02 13:00:00'),       -- Not finished
-(16, 'Deadlift', 8, 1, '2024-10-02 14:00:00'),     -- Finished
+(16, 'Bicep Curl', 8, 1, '2024-10-02 14:00:00'),     -- Finished
 (17, 'Bench Press', 12, 0, '2024-10-02 15:30:00'), -- Not finished
 (18, 'Lunge', 25, 1, '2024-10-02 16:30:00'),       -- Finished
 (19, 'Push Up', 30, 1, '2024-10-02 17:00:00'),     -- Finished
 (20, 'Tricep Dip', 10, 0, '2024-10-02 18:00:00'),  -- Not finished
 
 -- Day 3
-(21, 'Deadlift', 18, 1, '2024-10-03 08:05:00'),  -- Finished
+(21, 'Bicep Curl', 18, 1, '2024-10-03 08:05:00'),  -- Finished
 (22, 'Bench Press', 12, 0, '2024-10-03 09:30:00'),-- Not finished
 (23, 'Leg Press', 8, 1, '2024-10-03 10:15:00'),   -- Finished
 (24, 'Plank', 40, 0, '2024-10-03 11:30:00'),      -- Not finished
@@ -54,7 +54,7 @@ VALUES
 (32, 'Squat', 15, 0, '2024-10-04 10:00:00'),      -- Not finished
 (33, 'Burpee', 15, 1, '2024-10-04 11:00:00'),     -- Finished
 (34, 'Row', 20, 0, '2024-10-04 12:00:00'),        -- Not finished
-(35, 'Deadlift', 12, 1, '2024-10-04 13:00:00'),   -- Finished
+(35, 'Bicep Curl', 12, 1, '2024-10-04 13:00:00'),   -- Finished
 (36, 'Bench Press', 8, 1, '2024-10-04 14:00:00'), -- Finished
 (37, 'Leg Press', 20, 0, '2024-10-04 15:00:00'),  -- Not finished
 (38, 'Plank', 35, 1, '2024-10-04 16:00:00'),      -- Finished
@@ -62,7 +62,7 @@ VALUES
 (40, 'Push Up', 25, 1, '2024-10-04 18:00:00'),    -- Finished
 
 -- Day 5
-(41, 'Deadlift', 12, 1, '2024-10-05 08:05:00'),  -- Finished
+(41, 'Bicep Curl', 12, 1, '2024-10-05 08:05:00'),  -- Finished
 (42, 'Bench Press', 10, 0, '2024-10-05 10:00:00'),-- Not finished
 (43, 'Leg Press', 20, 1, '2024-10-05 10:15:00'),  -- Finished
 (44, 'Plank', 60, 0, '2024-10-05 11:30:00'),      -- Not finished
@@ -74,7 +74,7 @@ VALUES
 (50, 'Lunge', 20, 0, '2024-10-05 17:00:00');      -- Not finished
 
 -- Day 6
-(51, 'Deadlift', 15, 1, '2024-10-06 08:05:00'),  -- Finished
+(51, 'Bicep Curl', 15, 1, '2024-10-06 08:05:00'),  -- Finished
 (52, 'Squat', 20, 0, '2024-10-06 09:30:00'),      -- Not finished
 (53, 'Burpee', 25, 1, '2024-10-06 10:15:00'),     -- Finished
 (54, 'Row', 10, 1, '2024-10-06 11:00:00'),        -- Finished
@@ -86,7 +86,7 @@ VALUES
 (60, 'Leg Press', 12, 1, '2024-10-06 17:00:00');   -- Finished
 
 -- Day 7
-(61, 'Deadlift', 20, 0, '2024-10-07 08:05:00'),   -- Not finished
+(61, 'Bicep Curl', 20, 0, '2024-10-07 08:05:00'),   -- Not finished
 (62, 'Bench Press', 8, 1, '2024-10-07 10:00:00'),  -- Finished
 (63, 'Lunge', 20, 1, '2024-10-07 11:00:00'),       -- Finished
 (64, 'Burpee', 15, 1, '2024-10-07 12:00:00'),      -- Finished
@@ -98,7 +98,7 @@ VALUES
 (70, 'Leg Press', 10, 1, '2024-10-07 18:00:00');   -- Finished
 
 -- Day 8
-(71, 'Deadlift', 15, 1, '2024-10-08 08:05:00'),    -- Finished
+(71, 'Bicep Curl', 15, 1, '2024-10-08 08:05:00'),    -- Finished
 (72, 'Squat', 25, 1, '2024-10-08 09:30:00'),       -- Finished
 (73, 'Burpee', 20, 1, '2024-10-08 10:15:00'),      -- Finished
 (74, 'Row', 15, 0, '2024-10-08 11:00:00'),         -- Not finished
