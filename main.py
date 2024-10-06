@@ -44,8 +44,8 @@ def main():
 
     with tab1:
         today = datetime.datetime.today().date()
-        # today = "2024-10-02 00:00:00" #Dont Remove This
-        # today = datetime.datetime.strptime(today, '%Y-%m-%d %H:%M:%S')
+        today = "2024-10-02 00:00:00" #Dont Remove This
+        today = datetime.datetime.strptime(today, '%Y-%m-%d %H:%M:%S')
         df = get_task_names(0, today)
         tasks = {}
         tasks_name = []
@@ -78,8 +78,9 @@ def main():
         
         with col1.container(height=550):
             st.subheader("Daily Summary")
-            d = st.date_input("Select Date", datetime.date.today())
-            chart_data = get_task_names(1, d)
+            workout_status=1
+            select_date = st.date_input("Select Date", datetime.date.today())
+            chart_data = get_task_names(workout_status, select_date)
             chart_data['date'] = pd.to_datetime(chart_data['assign_date']).dt.date
 
             # Group by date and pivot the exercises into columns
