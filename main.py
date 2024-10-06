@@ -22,8 +22,13 @@ def load_model():
 def get_task_names(status, date):
     conn = st.connection("postgresql", type="sql")
     query_sql = conn.query(f"SELECT * FROM tasks WHERE status = {status} AND DATE(assign_date) = '{date}';", ttl=0)
-    return conn.query(f"SELECT * FROM tasks WHERE status = {status} AND DATE(assign_date) = '{date}';", ttl=0)
+    return query_sql
 
+# ฟังก์ชันใหม่สำหรับ Query ข้อมูลย้อนหลัง
+def get_historical_task_data(status, start_date, end_date):
+    conn = st.connection("postgresql", type="sql")
+    query_sql = conn.query(f"SELECT * FROM tasks WHERE status = {status} AND assign_date BETWEEN '{start_date}' AND '{end_date}';", ttl=0)
+    return query_sql
 
 def main():
     st.title("Exercise Tracking")
@@ -39,7 +44,8 @@ def main():
 
     with tab1:
         today = datetime.datetime.today().date()
-        today = "2024-10-02 00:00:00"
+        today = "2024-10-02 00:00:00" #Dont Remove This
+        today = datetime.datetime.strptime(today, '%Y-%m-%d %H:%M:%S')
         df = get_task_names(0, today)
         tasks = {}
         tasks_name = []
@@ -68,9 +74,10 @@ def main():
                 """
             )
         
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns([2, 2, 1])  # Adjust to 3 columns for placing two charts and tasks
         
         with col1.container(height=550):
+            st.subheader("Daily Summary")
             d = st.date_input("Select Date", datetime.date.today())
             chart_data = get_task_names(1, d)
             chart_data['date'] = pd.to_datetime(chart_data['assign_date']).dt.date
@@ -93,7 +100,63 @@ def main():
             series = result.iloc[0].to_list()
             st_apexcharts(options, series, 'donut', '470', 'Daily Summary')
 
+        # Historical Summary Bar Chart
         with col2.container(height=550):
+            st.subheader("Exercise Summary")
+            # Set default start_date as beginning of the month and end_date as today - 1
+            col_start, col_end = st.columns(2)
+
+            with col_start:
+                start_date = st.date_input("Start Date", value=today.replace(day=1))
+            
+            with col_end:
+                end_date = st.date_input("End Date", value=today - datetime.timedelta(days=1))
+
+            # Fetch historical data
+            historical_data = get_historical_task_data(1, start_date, end_date)
+            historical_data['date'] = pd.to_datetime(historical_data['assign_date']).dt.date
+
+            # Group by exercise and sum the reps for each exercise
+            historical_summary = historical_data.groupby('exercise')['reps'].sum().reset_index()
+
+            # Prepare data for the bar chart
+            bar_options = {
+                "chart": {
+                    "type": "bar",
+                    "toolbar": {
+                        "show": False
+                    }
+                },
+                "plotOptions": {
+                    "bar": {
+                        "horizontal": False,
+                        "columnWidth": "55%",
+                    }
+                },
+                "dataLabels": {
+                    "enabled": False
+                },
+                "xaxis": {
+                    "categories": historical_summary['exercise'].tolist(),
+                },
+                "tooltip": {
+                    "theme": "dark",  # This will change the tooltip to a light theme with black text
+                },
+                "legend": {
+                    "show": True,
+                    "position": "bottom",
+                },
+            }
+
+            bar_series = [{
+                "name": "Reps",
+                "data": historical_summary['reps'].tolist()
+            }]
+
+            st_apexcharts(bar_options, bar_series, 'bar', '470', 'Exercise Summary')
+
+        # Tasks List
+        with col3.container(height=550):
             st.subheader("Tasks ❗️", divider=True)
             for i, task in enumerate(tasks_name):
                 st.checkbox(task, key=task+str(i), disabled=True)
@@ -142,12 +205,12 @@ def main():
     with tab2:
         st.markdown(
             """ 
-            ```
-            Jaturawich Khochun 6410110060
-            ```
-            ```
-            Pacharawut Thanawut 6410110340
-            ```
+            ``` 
+            Jaturawich Khochun 6410110060 
+            ``` 
+            ``` 
+            Pacharawut Thanawut 6410110340 
+            ``` 
             """)
 
 if __name__ == "__main__":
