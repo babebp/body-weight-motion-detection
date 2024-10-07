@@ -44,8 +44,8 @@ def main():
 
     with tab1:
         today = datetime.datetime.today().date()
-        today = "2024-10-02 00:00:00" #Dont Remove This
-        today = datetime.datetime.strptime(today, '%Y-%m-%d %H:%M:%S')
+        # today = "2024-10-02 00:00:00" #Dont Remove This
+        # today = datetime.datetime.strptime(today, '%Y-%m-%d %H:%M:%S')
         df = get_task_names(0, today)
         tasks = {}
         tasks_name = []
