@@ -71,7 +71,7 @@ VALUES
 (47, 'Burpee', 10, 0, '2024-10-05 14:00:00'),     -- Not finished
 (48, 'Row', 15, 1, '2024-10-05 15:00:00'),        -- Finished
 (49, 'Push Up', 30, 1, '2024-10-05 16:00:00'),    -- Finished
-(50, 'Lunge', 20, 0, '2024-10-05 17:00:00');      -- Not finished
+(50, 'Lunge', 20, 0, '2024-10-05 17:00:00'),      -- Not finished
 
 -- Day 6
 (51, 'Bicep Curl', 15, 1, '2024-10-06 08:05:00'),  -- Finished
@@ -83,7 +83,7 @@ VALUES
 (57, 'Tricep Dip', 20, 1, '2024-10-06 14:30:00'), -- Finished
 (58, 'Lunge', 15, 0, '2024-10-06 15:00:00'),      -- Not finished
 (59, 'Push Up', 20, 1, '2024-10-06 16:00:00'),    -- Finished
-(60, 'Leg Press', 12, 1, '2024-10-06 17:00:00');   -- Finished
+(60, 'Leg Press', 12, 1, '2024-10-06 17:00:00'),   -- Finished
 
 -- Day 7
 (61, 'Bicep Curl', 20, 0, '2024-10-07 08:05:00'),   -- Not finished
@@ -95,7 +95,7 @@ VALUES
 (67, 'Row', 20, 0, '2024-10-07 15:00:00'),         -- Not finished
 (68, 'Squat', 15, 1, '2024-10-07 16:00:00'),       -- Finished
 (69, 'Push Up', 25, 0, '2024-10-07 17:00:00'),     -- Not finished
-(70, 'Leg Press', 10, 1, '2024-10-07 18:00:00');   -- Finished
+(70, 'Leg Press', 10, 1, '2024-10-07 18:00:00'),   -- Finished
 
 -- Day 8
 (71, 'Bicep Curl', 15, 1, '2024-10-08 08:05:00'),    -- Finished
