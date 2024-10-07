@@ -26,7 +26,7 @@ def pick_random_workout_emoji():
     emojis = ['💪🏻', '🦾', '🏋️‍♂️', '🤸‍♀️', '🚴‍♂️', '🤼‍♀️', '🏃‍♂️', '⛹️‍♂️', '🤾‍♀️', '🏊‍♂️']
     return random.choice(emojis)
 
-def query_tasks_today(status):
+def query_tasks_today(status, all=False):
     conn = psycopg2.connect(
         host="postgres",
         database="airflow_db",
@@ -35,7 +35,10 @@ def query_tasks_today(status):
     )
     today = datetime.today().date()
     print(today)
-    query = f"SELECT * FROM tasks WHERE status = {status} AND DATE(assign_date) = '{today}'"
+    if all:
+        query = f"SELECT * FROM tasks WHERE DATE(assign_date) = '{today}'"
+    else:
+        query = f"SELECT * FROM tasks WHERE status = {status} AND DATE(assign_date) = '{today}'"
     
     with conn.cursor() as cur:
         cur.execute(query)
@@ -101,7 +104,7 @@ with DAG(
         "☀️ *Good morning!🌅 Ready to tackle the day? Let’s make progress together! 💪🏻*\n\n"
         "✨ *Here's your daily update:*\n\n"
         "📝 *You have the following tasks to complete today:*\n"
-        f"{query_tasks_today(0)}"
+        f"{query_tasks_today(0, True)}"
         "Let's have a productive day! 💪"
     )
 
