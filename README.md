@@ -1,18 +1,10 @@
 # Body Weight Motion Detection
+Detect user's exercise form
 
-1. Create environment
+## Members
 ```
-python -m venv venv
+Pacharawut   Thanawut    6410110340
 ```
-2. Install requirements
 ```
-pip install -r requirements.txt
-```
-3. Run docker compose
-```
-docker compose up -d
-```
-4. Run App
-```
-streamlit run main.py
+Jaturawich   Khochun     6410110060
 ```
